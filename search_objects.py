@@ -3,6 +3,9 @@ import scipy
 import scipy.stats as st
 import pandas as pd
 import sys
+import urllib2
+import socket
+
 
 import astropy
 import astroquery
@@ -38,21 +41,22 @@ from astroquery import ogle  #### CHECK ####
 
 
 # SEARCH_CATALOGS function searches for information from databases
-def search_catalogs(n, catalog_name, position):
-    #n = len(data)
+def search_catalogs(*args):
+    
+    n, catalog_name, position = args[0], args[1], args[2]
     flag = 0
     
     for i in np.arange(n):
         try:
             with REMOTE_TIMEOUT.set_temp(30):
-                cc = catalog_name.query_region(position[i])
+                cc = catalog_name.query_region(position[i], radius=radius)
             if len(cc) == 0:
                 continue
             else:
                 cc_table = cc
                 flag = i
                 break
-        except (urllib2.URLError, urllib.error.URLError, timeout):
+        except (urllib2.URLError, socket.timeout):
             print "This remote file couldn't be found, or it took too long to query the data :( Try running the script again."
             continue
         
@@ -67,12 +71,12 @@ def search_catalogs(n, catalog_name, position):
         for j in np.arange(flag,n):
             try:
                 with REMOTE_TIMEOUT.set_temp(30):
-                    cc_also = catalog_name.query_region(converted_str[j])
+                    cc_also = catalog_name.query_region(converted_str[j], radius=radius)
                 if len(cc_also) == 0:
                     continue
                 else:
                     cc_table.add_row(cc_also[0])
-            except timeout:
+            except socket.timeout:
                 continue
         return cc_table
 
@@ -80,9 +84,9 @@ def search_catalogs(n, catalog_name, position):
 def main():
 	
 	# initialize vars
-	radius   = '2d0m0s' #### CHECK (do we need this?) ####
-	catalogs = [Simbad, Nrao, Ukidss]
-	names    = ['Simbad', 'Nrao', 'Ukidss']
+	radius   = '0d0m2s'
+	catalogs = [Simbad, Nrao, Ukidss, Vizier]
+	names = ['Simbad', 'NRAO', 'UKIDSS', 'VizieR']
 	n 		 = len(objects)
 
 	# read in data & convert posititon to arcdeg/min/sec
