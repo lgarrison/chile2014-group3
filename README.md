@@ -24,7 +24,7 @@ The data file should have the following columns in the following order:
   - dr_rms = rms in the position (not very useful)
 
 ASSUMPTIONS
-  1. Data  is saved as a file named 'Variabes_var'; in the same directory as  script.
+  1. Data  is saved as a file named 'Variables_var'; in the same directory as  script.
   2. Radius is 5 arcseconds
   3. Number of objects returned per inputted object is less than/equal to 15 
 
