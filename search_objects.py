@@ -23,7 +23,7 @@ from astroquery.vizier import Vizier
 
 #############################################################################
 # SEARCH_OBJECTS.PY performs a conesearch around an object and retrieves  
-#	information from all catalogs in the following databases:
+# information from all catalogs in the following databases:
 # 	- NED
 # 	- Simbad
 # 	- NRAO
@@ -89,7 +89,7 @@ def search_catalogs(*args):
         for j in np.arange(flag,n):
             try:
                 with REMOTE_TIMEOUT.set_temp(30):
-                    cc_also = catalog_name.query_region(converted_str[j], radius=radius)
+                    cc_also = catalog_name.query_region(position[j], radius=radius)
                 if len(cc_also) == 0:
                     continue
                 else:
@@ -101,28 +101,30 @@ def search_catalogs(*args):
 
 def main():
 	
+	# read in data & convert posititon to arcdeg/min/sec
+	objects   = pd.read_table('Variables_var', header=None, 
+		names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 
+		'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
+
+	converted = coord.ICRS(ra=objects['ra'], dec=objects['dec'], 
+		unit=(u.degree, u.degree))
+
+	converted_str = converted.to_string()
+
 	# initialize vars
 	radius   = '0d0m2s'
 	catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
 	names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
 	n 		 = len(objects)
 
-	# read in data & convert posititon to arcdeg/min/sec
-	objects   = pd.read_table('Variables_var', header=None, 
-		names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 
-		'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
-	converted = coord.ICRS(ra=objects['ra'], dec=objects['dec'], 
-		unit=(u.degree, u.degree))
-	converted_str = converted.to_string()
-
 	# run
 	for k in np.arange(len(catalogs)):
-	    table_per_catalog = search_catalogs(n, catalogs[k], converted_str)
+	    table_per_catalog = search_catalogs(n, catalogs[k], converted_str, radius)
 	    if table_per_catalog is None:
 	        continue
 	    else:
 	    	# if table is not empty, write to csv
-	        filename = names[k] + '_test.csv'
+	        filename = names[k] + '_information.csv'
 	        ascii.write(table_per_catalog, filename, format='csv')
 
 	return 0
