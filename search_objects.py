@@ -16,34 +16,53 @@ from astropy import units as u
 from astropy.utils.data import REMOTE_TIMEOUT
 
 # astroquery modules
+from astroquery.ned import Ned
 from astroquery.simbad import Simbad 
 from astroquery.nrao import Nrao
 from astroquery.ukidss import Ukidss
 from astroquery.vizier import Vizier
-from astroquery import fermi #### CHECK ####
-from astroquery import ogle  #### CHECK ####
 
 #############################################################################
-# TODO About the code, how to run it
+# SEARCH_OBJECTS.PY performs a conesearch around an object and retrieves  
+#	information from all catalogs in the following databases:
+# 		- NED
+# 		- Simbad
+# 		- NRAO
+# 		- UKIDSS #instability exists with this database
+# 		- Vizier
 
-# SEARCH_OBJECTS.PY searches for information from the following databases:
-# Simbad
-# NRAO
-# UKIDSS #not stable
-# Vizier
+# INPUT DATA
+# The data file should have the following columns in the following order:
+# 	obj = object ID
+# 	ra = RA
+# 	dec = DEC
+# 	N = number of observations
+#	mean = average of magnitudes
+#	median = median of magnitudes
+# 	rms = rms of the photometry
+# 	median_err = median photometric uncertainty
+#	skewness = skewness of magnitudes
+#	chi2 = chi-squared statistic of magnitudes
+#	sigma = variance of magnitudes
+# 	dr_rms = rms in the position (not very useful)
 
-# DATA
-# n = is the number of observations
-# rms = rms of the photometry
-# median_err = is the median photometric uncertainty
-# dr_rms = is the rms in the position (not very useful)
+# ASSUMPTIONS
+# 1. Data  is saved as a file named 'Variabes_var'; in the same directory as  script.
+# 2. Radius is 5 arcseconds
+# 3. Number of objects returned per inputted object is less than/equal to 15 
+# 4. If information is retrieved, a csv file is outputted for that database
+
+# author: Anita Mehrotra, anitamehrotra@fas.harvard.edu
+# date: January 13, 2014
+# department: SEAS, Harvard University
+# project: CHILE 2014
 #############################################################################
 
 
-# SEARCH_CATALOGS function searches for information from databases
+# SEARCH_CATALOGS function searches for information from databases listed above
 def search_catalogs(*args):
     
-    n, catalog_name, position = args[0], args[1], args[2]
+    n, catalog_name, position, radius = args[0], args[1], args[2], args[3]
     flag = 0
     
     for i in np.arange(n):
@@ -57,16 +76,16 @@ def search_catalogs(*args):
                 flag = i
                 break
         except (urllib2.URLError, socket.timeout):
-            print "This remote file couldn't be found, or it took too long to query the data :( Try running the script again."
-            continue
+            print "This remote file couldn't be found, or it took too long to query the data :("
+            print " Try running the script again."
+            break
         
     # if empty, exit; otherwise, grow table       
-    if flag == 0:
+    if flag == 0 and len(cc) == 0:
         print '\n'
         print 'No information available from ', str(catalog_name)
         print 'The table for this database will be empty.'
         return None
-    
     else:   
         for j in np.arange(flag,n):
             try:
@@ -85,8 +104,8 @@ def main():
 	
 	# initialize vars
 	radius   = '0d0m2s'
-	catalogs = [Simbad, Nrao, Ukidss, Vizier]
-	names = ['Simbad', 'NRAO', 'UKIDSS', 'VizieR']
+	catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
+	names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
 	n 		 = len(objects)
 
 	# read in data & convert posititon to arcdeg/min/sec
@@ -110,10 +129,6 @@ def main():
 	return 0
 
 if __name__ == '__main__':
+	main()
+
 	exit(main())
-
-
-
-
-
-
