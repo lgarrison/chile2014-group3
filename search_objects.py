@@ -32,18 +32,18 @@ from astroquery.vizier import Vizier
 
 # INPUT DATA
 # The data file should have the following columns in the following order:
-# 	obj = object ID
-# 	ra = RA
-# 	dec = DEC
-# 	N = number of observations
-#	mean = average of magnitudes
-#	median = median of magnitudes
-# 	rms = rms of the photometry
-# 	median_err = median photometric uncertainty
-#	skewness = skewness of magnitudes
-#	chi2 = chi-squared statistic of magnitudes
-#	sigma = variance of magnitudes
-# 	dr_rms = rms in the position (not very useful)
+# obj = object ID
+# ra = RA
+# dec = DEC
+# N = number of observations
+# mean = average of magnitudes
+# median = median of magnitudes
+# rms = rms of the photometry
+# median_err = median photometric uncertainty
+# skewness = skewness of magnitudes
+# chi2 = chi-squared statistic of magnitudes
+# sigma = variance of magnitudes
+# dr_rms = rms in the position (not very useful)
 
 # ASSUMPTIONS
 # 1. Data  is saved as a file named 'Variabes_var'; in the same directory as  script.
