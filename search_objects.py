@@ -6,7 +6,6 @@ import sys
 import urllib2
 import socket
 
-
 import astropy
 import astroquery
 
@@ -25,10 +24,10 @@ from astroquery.vizier import Vizier
 #############################################################################
 # SEARCH_OBJECTS.PY performs a conesearch around an object and retrieves  
 #	information from all catalogs in the following databases:
-# 		- NED
-# 		- Simbad
-# 		- NRAO
-# 		- UKIDSS #instability exists with this database
+# 	- NED
+# 	- Simbad
+# 	- NRAO
+# 	- UKIDSS #instability exists with this database
 # 		- Vizier
 
 # INPUT DATA
