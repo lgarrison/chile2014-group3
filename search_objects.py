@@ -28,7 +28,7 @@ from astroquery.vizier import Vizier
 # 	- Simbad
 # 	- NRAO
 # 	- UKIDSS #instability exists with this database
-# 		- Vizier
+# 	- Vizier
 
 # INPUT DATA
 # The data file should have the following columns in the following order:
