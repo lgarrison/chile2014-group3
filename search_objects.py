@@ -28,8 +28,13 @@ from astroquery import ogle  #### CHECK ####
 # NRAO
 # UKIDSS #not stable
 # Vizier
-#############################################################################
 
+# DATA
+# n = is the number of observations
+# rms = rms of the photometry
+# median_err = is the median photometric uncertainty
+# dr_rms = is the rms in the position (not very useful)
+#############################################################################
 
 
 # SEARCH_CATALOGS function searches for information from databases
@@ -73,7 +78,7 @@ def search_catalogs(n, catalog_name, position):
 
 
 def main():
-
+	
 	# initialize vars
 	radius   = '2d0m0s' #### CHECK (do we need this?) ####
 	catalogs = [Simbad, Nrao, Ukidss]
