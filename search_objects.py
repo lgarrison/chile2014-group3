@@ -12,6 +12,7 @@ import astroquery
 # astropy classes
 import astropy.coordinates as coord
 from astropy import units as u
+from astropy.io import ascii
 from astropy.utils.data import REMOTE_TIMEOUT
 
 # astroquery classes
@@ -67,7 +68,7 @@ def search_catalogs(*args):
     n, catalog_name, position, radius = args[0], args[1], args[2], args[3]
     flag = 0
     
-    for i in np.arange(n):
+    for i in xrange(n):
         try:
             with REMOTE_TIMEOUT.set_temp(30):
                 cc = catalog_name.query_region(position[i], radius=radius)
@@ -89,7 +90,7 @@ def search_catalogs(*args):
         print "The table for this database will be empty."
         return None
     else:   
-        for j in np.arange(flag,n):
+        for j in xrange(flag,n):
             try:
                 with REMOTE_TIMEOUT.set_temp(30):
                     cc_also = catalog_name.query_region(position[j], radius=radius)
@@ -111,19 +112,25 @@ def main():
 
     # initialize vars
     radius   = '0d0m2s'
-    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
+    #catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
+    #names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
+    catalogs = [Simbad, Nrao, Ukidss, Vizier]
+    names    = ['Simbad', 'NRAO', 'UKIDSS', 'VizieR']
     n = len(objects)
     m = len(catalogs)
 
     # execute search_catalogs()
-    for k in np.arange(m):
+    for k in xrange(m):
         print "\n"
         print "Searching ", names[k], "..."
 
         catalogs[k].ROW_LIMIT = 15
-        table_per_catalog = search_catalogs(n, catalogs[k], converted_str, radius)
-            
+        table_per_catalog = search_catalogs(n-6100, catalogs[k], converted_str, radius)
+        
+        if n%10 == 0:
+            print "\n"
+            print n
+
         if table_per_catalog is None:
             continue
         else:
