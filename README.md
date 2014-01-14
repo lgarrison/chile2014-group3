@@ -23,10 +23,11 @@ The data file should have the following columns in the following order:
   - sigma = variance of magnitudes
   - dr_rms = rms in the position (not very useful)
 
-ASSUMPTIONS
+ASSUMPTIONS AND NOTES
   1. Data  is saved as a file named 'Variables_var'; in the same directory as  script.
   2. Radius is 5 arcseconds
-  3. Number of objects returned per inputted object is less than/equal to 15 
+  3. Number of objects returned per inputted object is less than/equal to 15
+  4. There are a lot of warnings that are outputted, but this is okay. Modify code to suppress if it's annoying enough.
 
 OUTPUT
 
