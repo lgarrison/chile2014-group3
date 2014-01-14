@@ -24,10 +24,11 @@ The data file should have the following columns in the following order:
   - dr_rms = rms in the position (not very useful)
 
 ASSUMPTIONS AND NOTES
-  1. Data  is saved as a file named 'Variables_var'; in the same directory as  script.
-  2. Radius is 5 arcseconds
+  1. Data saved as a file named 'Variables_var' & is in the same directory as  script.
+  2. Radius is 2 arcseconds
   3. Number of objects returned per inputted object is less than/equal to 15
   4. There are a lot of warnings that are outputted, but this is okay. Modify code to suppress if it's annoying enough.
+  5. The code can be very slow (and particularly NED)! Consider working on one database at a time (lines 115-116).
 
 OUTPUT
 
