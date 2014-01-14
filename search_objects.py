@@ -9,20 +9,21 @@ import socket
 import astropy
 import astroquery
 
-# astropy modules
+# astropy classes
 import astropy.coordinates as coord
 from astropy import units as u
 from astropy.utils.data import REMOTE_TIMEOUT
 
-# astroquery modules
+# astroquery classes
 from astroquery.ned import Ned
 from astroquery.simbad import Simbad 
 from astroquery.nrao import Nrao
 from astroquery.ukidss import Ukidss
 from astroquery.vizier import Vizier
+import astroquery.exceptions as exceptions
 
 #############################################################################
-# SEARCH_OBJECTS.PY performs a conesearch around an object and retrieves  
+# SEARCH_OBJECTS.py performs a conesearch around an object and retrieves  
 # information from all catalogs in the following databases:
 # 	- NED
 # 	- Simbad
@@ -45,15 +46,17 @@ from astroquery.vizier import Vizier
 # sigma = variance of magnitudes
 # dr_rms = rms in the position (not very useful)
 
-# ASSUMPTIONS
+# ASSUMPTIONS & NOTES
 # 1. Data  is saved as a file named 'Variabes_var'; in the same directory as  script.
 # 2. Radius is 5 arcseconds
 # 3. Number of objects returned per inputted object is less than/equal to 15 
 # 4. If information is retrieved, a csv file is outputted for that database
+# 5. There are a lot of warnings that are outputted, but this is okay. Modify code
+#   to suppress if it's annoying enough.
 
 # author: Anita Mehrotra, anitamehrotra@fas.harvard.edu
 # date: January 13, 2014
-# department: SEAS, Harvard University
+# department: CSE SEAS, Harvard University
 # project: CHILE 2014
 #############################################################################
 
@@ -74,16 +77,16 @@ def search_catalogs(*args):
                 cc_table = cc
                 flag = i
                 break
-        except (urllib2.URLError, socket.timeout):
-            print "This remote file couldn't be found, or it took too long to query the data :("
+        except (urllib2.URLError, socket.timeout, exceptions.RemoteServiceError):
+            print "This remote file/object couldn't be found, or it took too long to query the data :("
             print " Try running the script again."
             break
         
     # if empty, exit; otherwise, grow table       
     if flag == 0 and len(cc) == 0:
-        print '\n'
-        print 'No information available from ', str(catalog_name)
-        print 'The table for this database will be empty.'
+        print "\n"
+        print "No information available from ", str(catalog_name)
+        print "The table for this database will be empty."
         return None
     else:   
         for j in np.arange(flag,n):
@@ -94,40 +97,43 @@ def search_catalogs(*args):
                     continue
                 else:
                     cc_table.add_row(cc_also[0])
-            except socket.timeout:
+            except (socket.timeout, exceptions.RemoteServiceError):
                 continue
         return cc_table
 
 
 def main():
 	
-	# read in data & convert posititon to arcdeg/min/sec
-	objects   = pd.read_table('Variables_var', header=None, 
-		names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 
-		'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
+    # read in data & convert posititon to arcdeg/min/sec
+    objects   = pd.read_table('Variables_var', header=None, names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
+    converted = coord.ICRS(ra=objects['ra'], dec=objects['dec'], unit=(u.degree, u.degree))
+    converted_str = converted.to_string()
 
-	converted = coord.ICRS(ra=objects['ra'], dec=objects['dec'], 
-		unit=(u.degree, u.degree))
+    # initialize vars
+    radius   = '0d0m2s'
+    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
+    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
+    n = len(objects)
+    m = len(catalogs)
 
-	converted_str = converted.to_string()
+    # execute search_catalogs()
+    for k in np.arange(m):
+        print "\n"
+        print "Searching ", names[k], "..."
 
-	# initialize vars
-	radius   = '0d0m2s'
-	catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-	names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
-	n 		 = len(objects)
+        catalogs[k].ROW_LIMIT = 15
+        table_per_catalog = search_catalogs(n, catalogs[k], converted_str, radius)
+            
+        if table_per_catalog is None:
+            continue
+        else:
+            filename = names[k] + '_test.csv'
+            ascii.write(table_per_catalog, filename, format='csv')
+	
+    print "Finished!"
+    
+    return 0
 
-	# run
-	for k in np.arange(len(catalogs)):
-	    table_per_catalog = search_catalogs(n, catalogs[k], converted_str, radius)
-	    if table_per_catalog is None:
-	        continue
-	    else:
-	    	# if table is not empty, write to csv
-	        filename = names[k] + '_information.csv'
-	        ascii.write(table_per_catalog, filename, format='csv')
-
-	return 0
 
 if __name__ == '__main__':
 	main()
