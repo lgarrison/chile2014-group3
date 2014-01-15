@@ -31,5 +31,9 @@ ASSUMPTIONS AND NOTES
   5. The code can be very slow (and particularly NED)! Consider working on one database at a time (lines 115-116).
 
 OUTPUT
-
-If information is retrieved, a csv file is outputted for that database
+  1. A .txt or .csv file with information from queries, per database.
+  2. All exceptions are written to a file '<catalog_name>exceptions_stdout.txt.'
+    - urllib2.URLError = The remote file couldn't be found
+    - socket.timeout   = This object couldn't be found
+    - exceptions.RemoteServiceError = It took too long to connect with the database server & query the data
+    - Exception: Query Failed
