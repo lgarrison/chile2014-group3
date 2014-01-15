@@ -32,6 +32,8 @@ import astroquery.exceptions as exceptions
 # 	- NRAO
 # 	- UKIDSS
 # 	- Vizier
+# This code is designed to be executed in SERIAL, which means it can be very slow
+# if you are querying for thousands of objects.
 
 # INPUT DATA
 # The data file should have the following columns in the following order:
@@ -56,12 +58,13 @@ import astroquery.exceptions as exceptions
 # 5. There are a lot of warnings that are outputted, but this is okay. Modify code
 #   to suppress if it's annoying enough.
 
-# EXCEPTIONS
-# All exceptions are written to a file 'exceptions_stdout.txt.'
+# OUTPUT
+# 1. All exceptions are written to a file '<catalog_name>exceptions_stdout.txt.'
 #   - urllib2.URLError = The remote file couldn't be found
 #   - socket.timeout   = This object couldn't be found
 #   - exceptions.RemoteServiceError = It took too long to connect with the database server & query the data
 #   - Exception: Query Failed
+# 2. A .txt or .csv file with information from queries.
 
 # author: Anita Mehrotra, anitamehrotra@fas.harvard.edu
 # date: January 15, 2014
@@ -73,11 +76,12 @@ import astroquery.exceptions as exceptions
 # SEARCH_CATALOGS function searches for information from databases listed above
 def search_catalogs(*args):
 
-    n, catalog_name, position, radius = args[0], args[1], args[2], args[3] #length of args = 4
-    flag      = 0  # flag = line number of first non-zero row returned from query
-    str_table = [] # str_table = list to store queries if they are strings
-    f         = open('exceptions_stdout.txt', 'w')
-    writeflag = 0
+    n, catalog_name, name, position, radius = args[0], args[1], args[2], args[3], args[4] #length of args = 5
+    flag        = 0  # flag = line number of first non-zero row returned from query
+    raw_table   = [] # raw_table = list to store queries if they are raw results (as opposed to parsed)
+    excep_fname = str(name) + 'exceptions_stdout.txt'
+    f           = open(excep_fname, 'w')
+    writeflag   = 0
 
     # find the first non-zero row of information to begin the table (cc) for the catalog
     for i in xrange(n):
@@ -89,14 +93,16 @@ def search_catalogs(*args):
             else:
                 cc_table = cc
                 if type(cc) is str: #append to a list if cc_table is a string
-                    str_table.append(cc_table)
+                    raw_table.append(cc_table)
                 flag = i 
                 print "flag = ", str(flag) 
                 break
-        except Exception:
-            print "An exception has occurred! :("
-            print "Check out the README or comments above for reasons."
+        except Exception as e:
+            print "An exception has occurred while searching for the initial non-empty result! :("
+            print "Check out the exceptions_stdout.txt file and README for reasons."
             print "A simple solution is to try re-running."
+            exception_msg = "j (row number in original data file) = " + str(j) + ":\t" + str(e) + "\n"
+            f.write(exception_msg) #write exceptions to a text file
             break
         
     # if table is empty, exit; otherwise, grow table     
@@ -116,7 +122,7 @@ def search_catalogs(*args):
                     continue
                 else:
                     if type(cc_table) is str:
-                        cc_table.append(str(cc_also)) #return a list of results if the output is a string
+                        raw_table.append(str(cc_also)) #return a list of results if the output is raw
                         writeflag = 1
                     else:
                         cc_table.add_row(cc_also[0])
@@ -138,10 +144,8 @@ def main():
 
     # initialize vars
     radius   = '0d0m2s'
-    #catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-    #names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR']
-    catalogs = [Vizier]
-    names    = ['VizieR']   
+    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
+    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR'] 
     n = len(objects)
     m = len(catalogs)
 
@@ -151,7 +155,7 @@ def main():
         print "Searching ", names[k], "..." #track progress
 
         catalogs[k].ROW_LIMIT = 15
-        writeflag, table_per_catalog = search_catalogs(n-6180, catalogs[k], converted_str, radius)
+        writeflag, table_per_catalog = search_catalogs(n, catalogs[k], names[k], converted_str, radius)
 
         if table_per_catalog is None:
             continue
@@ -159,18 +163,17 @@ def main():
         else:
             if writeflag == 0:
                 # cc_table is a table of different datatypes
-                filename = names[k] + '_information.csv'
+                filename = names[k] + '.csv'
                 ascii.write(table_per_catalog, filename, format='csv')
 
             elif writeflag == 1:
                 # cc_table is a list of strings
-                filename = names[k] + '_information.txt'
+                filename = names[k] + '.txt'
                 ff = open(filename, 'w')
-                for info in table_per_catalog:
-                    ff.write("%s\n" % info)
+                ff.write(table_per_catalog)
                 ff.close()
 
-    print "Finished searching all databases!"
+    print "\nFinished searching all databases!"
     
     return 0
 
