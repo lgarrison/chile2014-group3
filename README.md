@@ -32,7 +32,7 @@ ASSUMPTIONS AND NOTES
 
 OUTPUT
   1. A .txt or .csv file with information from queries, per database.
-  2. All exceptions are written to a file '<catalog_name>exceptions_stdout.txt.'
+  2. All exceptions are written to a file '<catalog-name>exceptions_stdout.txt.'
     - urllib2.URLError = The remote file couldn't be found
     - socket.timeout   = This object couldn't be found
     - exceptions.RemoteServiceError = It took too long to connect with the database server & query the data
