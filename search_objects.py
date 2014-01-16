@@ -35,6 +35,9 @@ import astroquery.exceptions as exceptions
 # This code is designed to be executed in SERIAL, which means it can be very slow
 # if you are querying for thousands of objects.
 
+# TO EXECUTE
+# python search_objects.py <input_filename>
+
 # INPUT DATA
 # The data file should have the following columns in the following order:
 # obj = object ID
@@ -51,7 +54,7 @@ import astroquery.exceptions as exceptions
 # dr_rms = rms in the position (not very useful)
 
 # ASSUMPTIONS & NOTES
-# 1. Data is saved as a file named 'Variabes_var'; in the same directory as  script.
+# 1. Data is saved in the same directory as this script.
 # 2. Radius is 2 arcseconds
 # 3. Number of objects returned per inputted object is less than/equal to 15 
 # 4. If information is retrieved, a csv file is outputted for that database
@@ -138,8 +141,9 @@ def search_catalogs(*args):
 def main():
 	
     # read in data & convert posititon to arcdeg/min/sec
-    objects   = pd.read_table('Variables_var', header=None, names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
-    converted = coord.ICRS(ra=objects['ra'], dec=objects['dec'], unit=(u.degree, u.degree))
+    input_file = sys.argv[1]
+    objects    = pd.read_table(input_file, header=None, names=['obj', 'ra', 'dec', 'N', 'mean', 'median', 'rms', 'median_err', 'skewness', 'chi2', 'sigma', 'dr_rms'])
+    converted  = coord.ICRS(ra=objects['ra'], dec=objects['dec'], unit=(u.degree, u.degree))
     converted_str = converted.to_string()
 
     # initialize vars
