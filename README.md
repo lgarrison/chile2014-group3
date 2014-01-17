@@ -8,6 +8,10 @@ SEARCH_OBJECTS.PY performs a conesearch around an object (where the object is gi
   - UKIDSS
   - Vizier
 
+TO EXECUTE
+
+python search\_objects.py \<input\_filename\>
+
 INPUT DATA
 The data file should have the following columns in the following order:
   - obj = object ID
