@@ -1,8 +1,8 @@
 chile2014-group3
 ================
 
-FILES
-------
+### FILES
+
   - search_objects.py
   - search\_objects\_parallel.py
   - parallelize.sh
