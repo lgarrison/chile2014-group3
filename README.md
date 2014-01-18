@@ -2,7 +2,7 @@ chile2014-group3
 ================
 
 FILES
-
+------
   - search_objects.py
   - search\_objects\_parallel.py
   - parallelize.sh
@@ -14,7 +14,7 @@ SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.
 PARALLELIZE.SH is the bash script used for executing search\_objects\_parallel.py.
 
 TO EXECUTE
-
+------
 To execute search\_objects.py, from the command line:
 
 
@@ -36,7 +36,7 @@ To execute search\_objects\_parallel.py, from the command line:
 See the README from https://github.com/astropy/astroquery for alternative methods of downloading & installing astroquery.
 
 INPUT DATA
-
+------
 The data file should have the following columns in the following order:
   - obj = object ID
   - ra = RA
@@ -52,7 +52,7 @@ The data file should have the following columns in the following order:
   - dr_rms = rms in the position (not very useful)
 
 ASSUMPTIONS AND NOTES
-
+------
   1. Data saved as a file named 'Variables_var' & is in the same directory as  script.
   2. Radius is 2 arcseconds
   3. Number of objects returned per inputted object is less than/equal to 15
@@ -60,7 +60,7 @@ ASSUMPTIONS AND NOTES
   5. The code can be very slow (and particularly NED)! Consider working on one database at a time (lines 115-116).
 
 OUTPUT
-
+------
   1. A .txt or .csv file with information from queries, per database.
   2. All exceptions are written to a file 'CATALOG-NAMEexceptions_stdout.txt.'
     - urllib2.URLError = The remote file couldn't be found
