@@ -21,6 +21,7 @@ from astroquery.simbad import Simbad
 from astroquery.nrao import Nrao
 from astroquery.ukidss import Ukidss
 from astroquery.vizier import Vizier
+from astroquery.sdss import SDSS
 import astroquery.exceptions as exceptions
 
 
@@ -32,11 +33,12 @@ import astroquery.exceptions as exceptions
 # 	- NRAO
 # 	- UKIDSS
 # 	- Vizier
+#   - SDSS
 # This code is designed to be executed in parallel, and ought to be executed with 
 # the bash script paralleliz.sh.
 
 # TO EXECUTE
-# <TODO>
+# ./parallelize.sh ./<filename>
 
 # INPUT DATA
 # The data file should have the following columns in the following order:
@@ -156,8 +158,8 @@ def main():
 
     # initialize vars
     radius   = '0d0m2s'
-    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR'] 
+    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier, SDSS]
+    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR', 'SDSS']
     n = len(objects)
     m = len(catalogs)
 
