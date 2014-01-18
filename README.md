@@ -1,7 +1,7 @@
 chile2014-group3
 ================
 
-SEARCH_OBJECTS.PY performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases:
+SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases:
   - NED
   - Simbad
   - NRAO
@@ -10,7 +10,17 @@ SEARCH_OBJECTS.PY performs a conesearch around an object (where the object is gi
 
 TO EXECUTE
 
-python search\_objects.py \<input\_filename\>
+
+
+    $ python search_objects.py <input_filename>
+
+*search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
+
+
+
+    $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
+    
+See the README from https://github.com/astropy/astroquery for alternative methods of downloading & installing astroquery.
 
 INPUT DATA
 The data file should have the following columns in the following order:
