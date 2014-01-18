@@ -1,6 +1,12 @@
 chile2014-group3
 ================
 
+FILES
+
+  *search_objects.py
+  *search\_objects\_parallel.py
+  *parallelize.sh
+  
 SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases:
   - NED
   - Simbad
@@ -8,12 +14,21 @@ SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is g
   - UKIDSS
   - Vizier
 
+SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.py that allows for distribution of work across multiple processors. 
+
 TO EXECUTE
+To execute search\_objects.py, from the command line:
 
 
 
     $ python search_objects.py <input_filename>
 
+To execute search\_objects\_parallel.py, from the command line:
+
+
+
+    $ ./parallelize.sh ./<input_filename>
+    
 *search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
 
 
