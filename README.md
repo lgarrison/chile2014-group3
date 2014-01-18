@@ -3,9 +3,9 @@ chile2014-group3
 
 FILES
 
-  *search_objects.py
-  *search\_objects\_parallel.py
-  *parallelize.sh
+  - search_objects.py
+  - search\_objects\_parallel.py
+  - parallelize.sh
   
 SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases:
   - NED
