@@ -12,7 +12,7 @@ TO EXECUTE
 
 
 
-    $ python search\_objects.py \<input\_filename\>
+    $ python search_objects.py <input_filename>
 
 *search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
 
