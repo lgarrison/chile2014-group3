@@ -85,6 +85,8 @@ def search_catalogs(*args):
     excep_fname = str(name) + 'exceptions_stdout.txt'
     f           = open(excep_fname, 'w')
     writeflag   = 0
+    cc          = None
+    cc_table    = None
 
     # find the first non-zero row of information to begin the table (cc) for the catalog
     for i in xrange(n):
