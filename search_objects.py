@@ -21,6 +21,7 @@ from astroquery.simbad import Simbad
 from astroquery.nrao import Nrao
 from astroquery.ukidss import Ukidss
 from astroquery.vizier import Vizier
+from astroquery.sdss import SDSS
 import astroquery.exceptions as exceptions
 
 
@@ -32,6 +33,7 @@ import astroquery.exceptions as exceptions
 # 	- NRAO
 # 	- UKIDSS
 # 	- Vizier
+#   - SDSS
 # This code is designed to be executed in SERIAL, which means it can be very slow
 # if you are querying for thousands of objects.
 
@@ -150,8 +152,8 @@ def main():
 
     # initialize vars
     radius   = '0d0m2s'
-    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR'] 
+    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier, SDSS]
+    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR', 'SDSS']
     n = len(objects)
     m = len(catalogs)
 
