@@ -11,6 +11,7 @@ SEARCH_OBJECTS.PY performs a conesearch around an object (where the object is gi
 TO EXECUTE
 
 python search\_objects.py \<input\_filename\>
+
 *search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
 
 
