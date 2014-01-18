@@ -7,12 +7,7 @@ FILES
   - search\_objects\_parallel.py
   - parallelize.sh
   
-SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases:
-  - NED
-  - Simbad
-  - NRAO
-  - UKIDSS
-  - Vizier
+SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases: NED, Simbad, NRAO, UKIDSS, and Vizier.
 
 SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.py that allows for distribution of work across multiple processors. 
 
