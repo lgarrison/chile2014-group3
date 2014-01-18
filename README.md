@@ -27,7 +27,7 @@ To execute search\_objects\_parallel.py, from the command line:
 
     $ ./parallelize.sh ./<input_filename>
     
-*search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
+*Both search\_objects.py and search\_objects\_parallel.py use astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
 
 
 
