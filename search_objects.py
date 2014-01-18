@@ -104,7 +104,7 @@ def search_catalogs(*args):
             print "An exception has occurred while searching for the initial non-empty result! :("
             print "Check out the exceptions_stdout.txt file and README for reasons."
             print "A simple solution is to try re-running."
-            exception_msg = "j (row number in original data file) = " + str(j) + ":\t" + str(e) + "\n"
+            exception_msg = "row number in original data file = " + str(i) + ":\t" + str(e) + "\n"
             f.write(exception_msg) #write exceptions to a text file
             break
         
