@@ -13,7 +13,7 @@ TO EXECUTE
 python search\_objects.py \<input\_filename\>
 *search_objects.py uses astroquery, which requires the DEVELOPER version of astropy. If you have pip, just do 
 
-.. code-block:: bash
+
 
     $ pip install git+http://github.com/astropy/astroquery.git#egg=astroquery
     
