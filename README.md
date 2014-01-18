@@ -5,12 +5,15 @@ chile2014-group3
   - search_objects.py
   - search\_objects\_parallel.py
   - parallelize.sh
+  - compute\_ei.py
   
 SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is given by an identifier and position (RA, DEC)). The script automates retrieval of information from all catalogs in the following databases: NED, Simbad, NRAO, UKIDSS, and Vizier.
 
 SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.py that allows for distribution of work across multiple processors. 
 
 PARALLELIZE.SH is the bash script used for executing search\_objects\_parallel.py.
+
+COMPUTE\_EI.PY <TODO>.
 
 #### TO EXECUTE
 To execute search\_objects.py, from the command line:
