@@ -96,15 +96,20 @@ class GaussianPeriodic:
     verbose: bool, optional
         Set to True to see the progress of building the model.
         Default is False.
+        
+    N_samp: int, optional
+        The number of period samples in determining the error
+        due to period uncertainty.  Default 30
 
     """
-    def __init__(self, t, mag, mag_err, period, period_err, verbose=False):
+    def __init__(self, t, mag, mag_err, period, period_err, verbose=False, N_samp=30):
         self.X = t
         self.y = mag
         self.dy = mag_err
         self.period = period
         self.period_uncertainty = period_err
         self.verbose = verbose
+        self.N_samp = N_samp
         
         self._init_model()
         
@@ -113,10 +118,12 @@ class GaussianPeriodic:
     def _init_model(self):
         """
         Initializes the model. (internal use)
+        
         """
         self.gp = GaussianProcess(normalize=False, regr='constant', corr=periodic_exponential, theta0=(self.period,1),thetaL=(self.period,3e-1), thetaU=(period,5),nugget=(self.dy / self.y) ** 2,random_start=100, verbose=self.verbose)
         self.gp.fit(np.atleast_2d(self.X).T, self.y)
-    
+        
+        self.period_trials = np.random.normal(self.period,self.period_uncertainty,self.N_samp)
     
     
     def P(self, d, t):
@@ -139,8 +146,24 @@ class GaussianPeriodic:
         prob: double array_like
             The probability of observing value d at time t
         """
+        
+        # Calc regression mean and uncertainty
         y_pred, MSE = self.gp.predict(t, eval_MSE=True)
         sigma = np.sqrt(MSE)
+        
+        # Calc uncertainty from period
+        y_err = self.gp.predict(((t-self.X[0])*(self.period_trials/self.period)+t[0]).reshape(-1,1)).reshape(len(y_pred),self.N_samp) - y_pred.reshape(len(y_pred),1)
+        yplus_uncert = np.ma.masked_less(y_err,0.).mean(axis=1)
+        yminus_uncert = -np.ma.masked_greater(y_err,0.).mean(axis=1)
+        
+        y_above = d > y_pred
+        yplus_uncert.mask |= ~y_above
+        yminus_uncert.mask |= y_above
+        yplus_uncert = yplus_uncert.filled(0.)
+        yminus_uncert = yminus_uncert.filled(0.)
+        
+        pdb.set_trace()
+        sigma = sigma + yplus_uncert + yminus_uncert
         
         prob = norm.pdf(d, loc=y_pred, scale=sigma)
         
@@ -151,7 +174,7 @@ class GaussianPeriodic:
 if __name__ == '__main__':
     print 'Testing GaussianPeriodic...'
     
-    filename = 'test_lc\Obj027_148.812762_3.354973'
+    filename = r'..\test_lc\Obj027_148.812762_3.354973'
     period = .608057
     period_uncertainty = .01
     first = 16
@@ -162,4 +185,4 @@ if __name__ == '__main__':
     
     gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
     querytime = jd[-1] + (jd[-1] - jd[0])*.02
-    print gp.P(mag[-1], querytime)
+    print gp.P([mag[-1]], [querytime])
