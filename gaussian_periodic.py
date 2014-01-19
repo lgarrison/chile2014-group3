@@ -147,6 +147,12 @@ class GaussianPeriodic:
             The probability of observing value d at time t
         """
         
+        if len(d) != len(t):
+            raise ValueError('d and t must have the same size')
+            return None
+        
+        t = np.atleast_2d(t).T
+        
         # Calc regression mean and uncertainty
         y_pred, MSE = self.gp.predict(t, eval_MSE=True)
         sigma = np.sqrt(MSE)
@@ -162,7 +168,6 @@ class GaussianPeriodic:
         yplus_uncert = yplus_uncert.filled(0.)
         yminus_uncert = yminus_uncert.filled(0.)
         
-        pdb.set_trace()
         sigma = sigma + yplus_uncert + yminus_uncert
         
         prob = norm.pdf(d, loc=y_pred, scale=sigma)
@@ -184,5 +189,5 @@ if __name__ == '__main__':
     mag_err = mag_err[:first]
     
     gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
-    querytime = jd[-1] + (jd[-1] - jd[0])*.02
-    print gp.P([mag[-1]], [querytime])
+    querytimes = jd[-1] + (jd[-1] - jd[0])*np.array([.02,.03, .1])
+    print gp.P([mag[-1]]*len(querytimes), querytimes)
