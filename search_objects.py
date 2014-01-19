@@ -21,6 +21,7 @@ from astroquery.simbad import Simbad
 from astroquery.nrao import Nrao
 from astroquery.ukidss import Ukidss
 from astroquery.vizier import Vizier
+from astroquery.sdss import SDSS
 import astroquery.exceptions as exceptions
 
 
@@ -32,6 +33,7 @@ import astroquery.exceptions as exceptions
 # 	- NRAO
 # 	- UKIDSS
 # 	- Vizier
+#   - SDSS
 # This code is designed to be executed in SERIAL, which means it can be very slow
 # if you are querying for thousands of objects.
 
@@ -85,6 +87,8 @@ def search_catalogs(*args):
     excep_fname = str(name) + 'exceptions_stdout.txt'
     f           = open(excep_fname, 'w')
     writeflag   = 0
+    cc          = None
+    cc_table    = None
 
     # find the first non-zero row of information to begin the table (cc) for the catalog
     for i in xrange(n):
@@ -104,7 +108,7 @@ def search_catalogs(*args):
             print "An exception has occurred while searching for the initial non-empty result! :("
             print "Check out the exceptions_stdout.txt file and README for reasons."
             print "A simple solution is to try re-running."
-            exception_msg = "j (row number in original data file) = " + str(j) + ":\t" + str(e) + "\n"
+            exception_msg = "row number in original data file = " + str(i) + ":\t" + str(e) + "\n"
             f.write(exception_msg) #write exceptions to a text file
             break
         
@@ -148,8 +152,8 @@ def main():
 
     # initialize vars
     radius   = '0d0m2s'
-    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier]
-    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR'] 
+    catalogs = [Ned, Simbad, Nrao, Ukidss, Vizier, SDSS]
+    names    = ['NED', 'Simbad', 'NRAO', 'UKIDSS', 'VizieR', 'SDSS']
     n = len(objects)
     m = len(catalogs)
 
