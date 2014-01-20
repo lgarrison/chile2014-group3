@@ -1,8 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
 import sys
 import emcee
+
+import matplotlib.pyplot as plt
+from matplotlib import rc
+rc('font',**{'family':'serif','serif':['Palatino']})
+rc('text', usetex=True)
 
 
 #############################################################################
@@ -45,11 +48,11 @@ def Phat(d):
     N = len(d)
     phat = np.zeros(N)
     for j in xrange(N):
-        if len(d[j] == 1):
+        if isinstance(d[j], float):
             phat[j] = (1./N)*d[j]
         else:
             #phat[j] = (1./N)*(sum(d[:,j]))
-            phat[j] = (1./N)*d[j]
+            phat[j] = (1./N)*sum(d[j])
     #return np.mean(d, axis=1)
     return phat
 
@@ -70,7 +73,7 @@ def main():
     nwalkers = 100
     ndim = 2
     nsamples = 500
-    burn_in = 30 #change depending on plots of theta
+    steps = np.arange(0,nsamples)
 
     # use MCMC to determine parameters of generative model (assuming normal)
     initial = np.mean(submag)
@@ -78,6 +81,25 @@ def main():
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[submag])
     results = sampler.run_mcmc(pos, nsamples)
     
+    # plot samples to determine burn-in; default is 30
+    mychain = sampler.chain
+
+    print "Displaying results for $\mu$..."
+    for j in xrange(nwalkers):
+        plt.plot(steps, mychain[j][:,0], 'b-')
+    plt.title('$\mu$')
+    plt.xlabel('steps')
+    plt.show()
+
+    print "Displaying results for $\sigma^2$..."
+    for j in np.arange(nwalkers):
+        plt.plot(steps, mychain[j][:,1], 'g-')
+    plt.title('$\sigma^2$')
+    plt.xlabel('steps')
+    plt.show()
+
+    # determine final set of samples
+    burn_in = 30 # change depending on plots of theta
     samples = sampler.chain[:, burn_in:, :].reshape((-1, ndim))
     samples[:,1] = np.exp(samples[:,1])
 
@@ -98,7 +120,7 @@ def main():
 
     EI_e = EI(lnPtilde)
 
-    print "expected information at time e = ", EI_e
+    print "Expected Information at time e = ", EI_e
 
     return 0
 
