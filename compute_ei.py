@@ -7,7 +7,12 @@ import emcee
 
 #############################################################################
 # COMPUTE_EI.py 
+
 # <TODO>
+
+# Celestial object models for the following types:
+# 	- variable stars = Gaussian Process
+#	- supernovae = template
 
 # author: Anita Mehrotra, anitamehrotra@fas.harvard.edu
 # date: January 18, 2014
@@ -37,17 +42,19 @@ def lnprob(theta, Di):
 
 # compute Phat
 def Phat(d):
-    N = len(thetas)
+    N = len(d)
     phat = np.zeros(N)
     for j in xrange(N):
-        #phat[j] = (1./N)*(sum(d[:,j]))
-        phat[j] = (1./N)*(sum(d[j]))
+        if len(d[j] == 1):
+            phat[j] = (1./N)*d[j]
+        else:
+            #phat[j] = (1./N)*(sum(d[:,j]))
+            phat[j] = (1./N)*d[j]
     #return np.mean(d, axis=1)
     return phat
 
 # compute expected information at time e
-def EI(*args):
-    ln_Ptilde = args[0]
+def EI(ln_Ptilde):
     return np.mean(ln_Ptilde)
 
 
@@ -63,15 +70,15 @@ def main():
     nwalkers = 100
     ndim = 2
     nsamples = 500
-    burn_in = 50
+    burn_in = 30 #change depending on plots of theta
 
     # use MCMC to determine parameters of generative model (assuming normal)
     initial = np.mean(submag)
-    pos = [initial + np.random.rand(ndim)*1e-4 for i in range(N)]
+    pos = [initial + np.random.rand(ndim)*1e-4 for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=[submag])
     results = sampler.run_mcmc(pos, nsamples)
     
-    samples = sampler.chain[:, burnin:, :].reshape((-1, ndim))
+    samples = sampler.chain[:, burn_in:, :].reshape((-1, ndim))
     samples[:,1] = np.exp(samples[:,1])
 
     # parameters for distribution
