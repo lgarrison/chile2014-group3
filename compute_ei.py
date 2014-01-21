@@ -194,7 +194,7 @@ def main():
     ee = np.concatenate(([e], [EI_e]), axis=0)
     np.savetxt("expected_information.csv", np.asarray(ee), delimiter=',')
 
-    print "See expected_information.csv for ouptut"
+    print "See expected_information.csv for output."
 
     return 0
 
