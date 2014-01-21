@@ -153,27 +153,83 @@ class GaussianPeriodic:
         
         t = np.atleast_2d(t).T
         
+        y_pred, sigmas = self.calc_regression_line(t)
+        
+        y_above = d > y_pred
+        sigmas[~y_above,0] = 0.
+        sigmas[y_above,1] = 0.
+        
+        sigma = sigmas.sum(axis=1)
+        
+        prob = norm.pdf(d, loc=y_pred, scale=sigma)
+        
+        return prob
+        
+    def calc_regression_line(self,t):
+        """
+        Computes the regression model at times t.
+        Gives mean and both the +/- sigma.
+        
+        Parameters
+        ----------
+        t: double array_like
+            Times to calculate sigma for
+        
+        Returns
+        -------
+        y_pred: double array_like
+            Array of shape (len(t),) with the predicted y_values
+            
+        sigmas: double array_like
+            Array in the shape (len(t),2), giving the (sigma_upper,sigma_lower) values at
+            every time sampling point
+        """
+        t = t.reshape(-1,1)
+        
         # Calc regression mean and uncertainty
         y_pred, MSE = self.gp.predict(t, eval_MSE=True)
         sigma = np.sqrt(MSE)
         
         # Calc uncertainty from period
         y_err = self.gp.predict(((t-self.X[0])*(self.period_trials/self.period)+t[0]).reshape(-1,1)).reshape(len(y_pred),self.N_samp) - y_pred.reshape(len(y_pred),1)
-        yplus_uncert = np.ma.masked_less(y_err,0.).mean(axis=1)
-        yminus_uncert = -np.ma.masked_greater(y_err,0.).mean(axis=1)
+        yplus_uncert = np.ma.masked_less(y_err,0.).mean(axis=1).filled(0.) + sigma
+        yminus_uncert = -np.ma.masked_greater(y_err,0.).mean(axis=1).filled(0.) + sigma
+
+        # Build sigmas array, with the upper and lower bounds at each point
+        sigmas = np.vstack((yplus_uncert,yminus_uncert)).T
         
-        y_above = d > y_pred
-        yplus_uncert.mask |= ~y_above
-        yminus_uncert.mask |= y_above
-        yplus_uncert = yplus_uncert.filled(0.)
-        yminus_uncert = yminus_uncert.filled(0.)
+        return y_pred,sigmas
         
-        sigma = sigma + yplus_uncert + yminus_uncert
+    def sample_d(self, M, t):
+        """
+        Produces a sample of M values d, drawn from the probability distribution for d at time t.
         
-        prob = norm.pdf(d, loc=y_pred, scale=sigma)
+        Parameters
+        ----------
+        M: int
+            The number of samples to produce
+            
+        t: double array_like
+            The times at which to produce the samples
+            
+        Returns
+        -------
+        samples: double array_like
+            A samples array with shape (len(t),M)
+        """
+        y_pred, sigmas = self.calc_regression_line(t)
         
-        return prob
-    
+        weights = (1./sigmas) / np.atleast_2d(np.sum(1./sigmas,axis=1)).T
+        
+        sample_from_upper = np.random.rand(len(t),M) < np.atleast_2d(weights[:,0]).T
+        
+        samples = np.empty_like(sample_from_upper,dtype=y_pred.dtype)
+        
+        samples[sample_from_upper] = (np.atleast_2d(sigmas[:,0]).T * np.random.randn(len(t),M) + np.atleast_2d(y_pred).T)[sample_from_upper]
+        samples[~sample_from_upper] = (np.atleast_2d(sigmas[:,1]).T * np.random.randn(len(t),M) + np.atleast_2d(y_pred).T)[~sample_from_upper]
+        
+        return samples
+        
     
 
 if __name__ == '__main__':
@@ -191,3 +247,4 @@ if __name__ == '__main__':
     gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
     querytimes = jd[-1] + (jd[-1] - jd[0])*np.array([.02,.03, .1])
     print gp.P([mag[-1]]*len(querytimes), querytimes)
+    print gp.sample_d(100,querytimes)
