@@ -9,11 +9,6 @@ from sklearn.gaussian_process import GaussianProcess
 import pdb
 from gaussian_periodic import *
 
-import matplotlib.pyplot as plt
-from matplotlib import rc
-rc('font',**{'family':'serif','serif':['Palatino']})
-rc('text', usetex=True)
-
 
 #############################################################################
 # COMPUTE_EI.py 
@@ -118,14 +113,16 @@ def main():
     # load data
     data_input_file = sys.argv[1]
     theta_input_file = sys.argv[2]
-    e = np.array(sys.argv[3])
 
-    ##### this portion for testing only #####
-    data_input_file  = '/Users/anita/Documents/CHILE/data/test_lc/Obj133_148.304044_1.378136'
-    theta_input_file = '/Users/anita/Documents/CHILE/data/test_theta.txt'
+    #data_input_file  = '/Users/anita/Documents/CHILE/data/test_lc/Obj133_148.304044_1.378136'
+    #theta_input_file = '/Users/anita/Documents/CHILE/data/test_theta.txt'
+    #e =  np.array([.02, .03, .1])
+    
     jd, mag, mag_err = np.loadtxt(data_input_file, unpack=True, usecols=[0, 1, 2])
     obj_id, theta0, theta1, theta2, dp0, dp1, dp2, sig0, sig1, sig2 = np.loadtxt(theta_input_file, unpack=True, usecols=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-    e =  np.array([.02,.03, .1])
+    
+
+    ##### this portion for testing only #####
     first = 16
     jd = jd[:first]
     mag = mag[:first]
@@ -133,9 +130,12 @@ def main():
     ##### end testing portion #####
 
     # initial vars
-    N = 100 #minimum
-    d = np.zeros([N, len(e)])
+    N = 50  # number of thetas i.e. i = {1, 2, ..., N}
+    M = 100 # number of new data points d_j i.e. j = {1, 2, ..., M}
+    times = np.array([.02, .03, .1])
+    ptildes = np.zeros([N, len(times)])
     EI_e = []
+
 
     # work with one object for now
     obj_id = obj_id[0]
@@ -156,7 +156,7 @@ def main():
     # compute probabilities 
     prob = sig/sum(sig)
 
-    # calculate stuff needed to run Gaussian Process
+    # produce full lists; needed to run Gaussian Process
     allthetas = full_list(thetas, prob, N)
     alluncertainty = full_list(uncert, prob, N)
     indices = compute_indices(thetas, prob, N)
@@ -167,31 +167,26 @@ def main():
         period = allthetas[i]
         period_uncertainty = alluncertainty[i]
         
-        # use first 16 observations to get new data
-        first = 16
-        jd = jd[:first]
-        mag = mag[:first]
-        mag_err = mag_err[:first]
-        
         gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
-        querytimes = jd[-1] + (jd[-1] - jd[0])*e
+        querytimes = jd[-1] + (jd[-1] - jd[0])*times
         
-        d[i,:] = np.array(gp.P([mag[-1]]*len(querytimes), querytimes))
+        # produce "new data" (samples from Gaussian Process)
+        dj = gp.sample_d(M,querytimes)
 
-    # compute phat per theta
-    phat = Phat(d)
+        # compute phat per theta
+        ptildes[i,:] = Phat(dj)
 
     # compute Expected Information per e
-    for j in xrange(len(thetas)):
-        start = indices[j]
-        end = indices[j]+1
-        ptildes = phat[start:end]
-        lnptildes = np.log(ptildes)
+    for k in xrange(len(thetas)):
+        start = indices[k]
+        end = indices[k]+1
+        ptildes_per_theta = ptildes[start:end]
+        lnptildes = np.log(ptildes_per_theta)
         EI_e.append(EI(lnptildes))
 
     # normalize Expected Information, and output to csv
     #normEI = (EI_e - min(EI_e))/(max(EI_e) - min(EI_e))
-    ee = np.concatenate(([e], [EI_e]), axis=0)
+    ee = np.concatenate(([times], [EI_e]), axis=0)
     np.savetxt("expected_information.csv", np.asarray(ee), delimiter=',')
 
     print "See expected_information.csv for output."

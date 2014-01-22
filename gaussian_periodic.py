@@ -21,6 +21,12 @@ should read
                            np.log10(self.thetaU[0, i]) - log10t[i])
 (Note the i=i)
 
+Run the following code to find the location of your gaussian_process.py file:
+from sklearn.gaussian_process import GaussianProcess
+import inspect
+inspect.getfile(GaussianProcess).replace('.pyc','.py')
+
+To apply the patch
 
 """
 # print(__doc__)
@@ -120,7 +126,7 @@ class GaussianPeriodic:
         Initializes the model. (internal use)
         
         """
-        self.gp = GaussianProcess(normalize=False, regr='constant', corr=periodic_exponential, theta0=(self.period,1),thetaL=(self.period,3e-1), thetaU=(period,5),nugget=(self.dy / self.y) ** 2,random_start=100, verbose=self.verbose)
+        self.gp = GaussianProcess(normalize=False, regr='constant', corr=periodic_exponential, theta0=(self.period,1),thetaL=(self.period,3e-1), thetaU=(self.period,5),nugget=(self.dy / self.y) ** 2,random_start=100, verbose=self.verbose)
         self.gp.fit(np.atleast_2d(self.X).T, self.y)
         
         self.period_trials = np.random.normal(self.period,self.period_uncertainty,self.N_samp)
@@ -230,9 +236,8 @@ class GaussianPeriodic:
         
         return samples
         
-    
 
-if __name__ == '__main__':
+def main():
     print 'Testing GaussianPeriodic...'
     
     filename = r'..\test_lc\Obj027_148.812762_3.354973'
@@ -248,3 +253,7 @@ if __name__ == '__main__':
     querytimes = jd[-1] + (jd[-1] - jd[0])*np.array([.02,.03, .1])
     print gp.P([mag[-1]]*len(querytimes), querytimes)
     print gp.sample_d(100,querytimes)
+        
+
+if __name__ == '__main__':
+    exit(main())
