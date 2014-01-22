@@ -1,0 +1,7 @@
+Our task was to take reduced data from the Dark Energy Camera and produce recommendations for follow-up observations, in a way that would enhance our knowledge of these objects while taking into account the cost of these observations.
+
+We use a probabilistic framework for analyzing this problem, by computing the probabilities of seeing certain data values under the assumption of different models.
+
+Specifically, we use an information-theoretic approach, in which we compute the expected information gain (or equivalently expected entropy decrease) by performing a certain observation at a certain time.  This information is measured in bits; if we wish to compute the cost efficiency of a certain observation, we can simply compute the bits-per-dollar achieved from a certain observation.
+
+For example, consider planning an observation to improve 
