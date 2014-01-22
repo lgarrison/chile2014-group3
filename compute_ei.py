@@ -113,10 +113,10 @@ def main():
     # load data
     data_input_file = sys.argv[1]
     theta_input_file = sys.argv[2]
-    e = np.array(sys.argv[3])
+
     #data_input_file  = '/Users/anita/Documents/CHILE/data/test_lc/Obj133_148.304044_1.378136'
     #theta_input_file = '/Users/anita/Documents/CHILE/data/test_theta.txt'
-    #e =  np.array([.02,.03, .1])
+    #e =  np.array([.02, .03, .1])
     
     jd, mag, mag_err = np.loadtxt(data_input_file, unpack=True, usecols=[0, 1, 2])
     obj_id, theta0, theta1, theta2, dp0, dp1, dp2, sig0, sig1, sig2 = np.loadtxt(theta_input_file, unpack=True, usecols=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
@@ -132,8 +132,10 @@ def main():
     # initial vars
     N = 50  # number of thetas i.e. i = {1, 2, ..., N}
     M = 100 # number of new data points d_j i.e. j = {1, 2, ..., M}
-    ptildes = np.zeros([N, len(e)])
+    times = np.array([.02, .03, .1])
+    ptildes = np.zeros([N, len(times)])
     EI_e = []
+
 
     # work with one object for now
     obj_id = obj_id[0]
@@ -166,7 +168,7 @@ def main():
         period_uncertainty = alluncertainty[i]
         
         gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
-        querytimes = jd[-1] + (jd[-1] - jd[0])*e
+        querytimes = jd[-1] + (jd[-1] - jd[0])*times
         
         # produce "new data" (samples from Gaussian Process)
         dj = gp.sample_d(M,querytimes)
@@ -184,7 +186,7 @@ def main():
 
     # normalize Expected Information, and output to csv
     #normEI = (EI_e - min(EI_e))/(max(EI_e) - min(EI_e))
-    ee = np.concatenate(([e], [EI_e]), axis=0)
+    ee = np.concatenate(([times], [EI_e]), axis=0)
     np.savetxt("expected_information.csv", np.asarray(ee), delimiter=',')
 
     print "See expected_information.csv for output."
