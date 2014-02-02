@@ -39,8 +39,12 @@ import pandas as pd
 import numpy as np
 import pdb
 from scipy.stats import norm
+import matplotlib as mpl
 
 np.random.seed(5)
+
+mpl.rcParams['font.size'] = 22
+mpl.rcParams['lines.linewidth'] = 3
 
 def periodic_exponential(theta, d):
     """
@@ -240,19 +244,79 @@ class GaussianPeriodic:
 def main():
     print 'Testing GaussianPeriodic...'
     
-    filename = r'..\test_lc\Obj027_148.812762_3.354973'
-    period = .608057
-    period_uncertainty = .01
+    filename = r'C:\Users\Owner\Dropbox\CHILE\chile2014-group3\0136_03_N31_lightcurve.csv'
+    period_filename = r'C:\Users\Owner\Dropbox\CHILE\chile2014-group3\0136_03_N31_period.csv'
+    draw_fill = True
+    # period = 0.5867
+    # period_uncertainty = 0.013
+    period_info = np.loadtxt(period_filename,unpack=True,delimiter=',')
+    periods = zip(period_info[:1],period_info[3:4]) # list of (period, uncert)
     first = 16
-    jd, mag, mag_err= np.loadtxt(filename,unpack=True, usecols=[0, 1, 2])
+    # jd, mag, mag_err= np.loadtxt(filename,unpack=True, usecols=[0, 3, 4])
+    obj = pd.read_csv(filename)
+    jd = obj['Time']
+    mag = obj['Mag']
+    mag_err = obj['e_mag']
+    mag += 20
+    sorted_ix = np.argsort(jd)
+    jd = jd[sorted_ix]
+    mag = mag[sorted_ix]
+    mag_err = mag_err[sorted_ix]
+    
     jd = jd[:first]
     mag = mag[:first]
     mag_err = mag_err[:first]
     
-    gp = GaussianPeriodic(jd, mag, mag_err, period, period_uncertainty, verbose=True)
-    querytimes = jd[-1] + (jd[-1] - jd[0])*np.array([.02,.03, .1])
-    print gp.P([mag[-1]]*len(querytimes), querytimes)
-    print gp.sample_d(100,querytimes)
+    gps = []
+    for p,u in periods:
+        gps += [GaussianPeriodic(jd, mag, mag_err, p, u, verbose=True)]
+    # querytimes = jd[-1] + (jd[-1] - jd[0])*np.array([.02,.03, .1])
+    # print gp.P([mag[-1]]*len(querytimes), querytimes)
+    # print gp.sample_d(100,querytimes)
+    
+    ei = pd.read_csv('expected_information.csv')
+    # ei['jd'] = np.linspace(jd[-1],jd[-1]+3.,30)
+    
+    # Plotting code
+    import matplotlib.pyplot as pl
+    objname = filename.split('\\')[-1].split('_')[0]
+    X = jd
+    dy = mag_err
+    y = mag
+    Xlims = np.array((min(X),max(X)))
+    ylims = np.array((min(y),max(y)))
+    x = np.atleast_2d(np.linspace(Xlims[0], Xlims[1] + (Xlims[1] - Xlims[0])*3, 10000)).T
+    fig = pl.figure()
+    pl.errorbar(X.ravel(), y, dy, fmt='r.', markersize=14, label=u'Observations')
+    for gp in gps:
+        y_pred, sigmas = gp.calc_regression_line(x)
+        pl.plot(x, y_pred, 'b-', label=u'Prediction')
+        if draw_fill:
+            pl.fill(np.concatenate([x, x[::-1]]),
+            np.concatenate([y_pred - 1.9600 * sigmas[:,1],
+                           (y_pred + 1.9600 * sigmas[:,0])[::-1]]),
+            alpha=.5, fc='b', ec='None', label='95% confidence interval')
+            
+    # dj = gp.sample_d(100,np.array([X[3]])).reshape(-1)
+    # pl.plot([X[3]]*len(dj),dj,'.')
+    pl.xlabel('time [JD]')
+    pl.ylabel('Magnitude')
+    shift = (ylims[1]+ylims[0])/2.
+    ylims = (ylims-shift)*4 + shift
+    pl.ylim(*ylims)
+    pl.legend(loc='upper left')
+    pl.title('Light Curve for %s with Gaussian Process Regression'%objname)
+    pl.gca().invert_yaxis()
+    
+    twinx = pl.twinx()
+    ei['EI'] -= min(ei['EI'])
+    twinx.plot(ei['jd'],ei['EI'],'g',label='Expected information',linewidth=3)
+    twinx.set_ylim(bottom=0.)
+    twinx.set_ylabel('EI gain')
+    twinx.legend()
+
+    pl.show()
+
         
 
 if __name__ == '__main__':
