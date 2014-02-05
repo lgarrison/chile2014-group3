@@ -13,7 +13,7 @@ SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.
 
 PARALLELIZE.SH is the bash script used for executing search\_objects\_parallel.py.
 
-COMPUTE\_EI.PY <TODO>.
+COMPUTE\_EI.PY computes expected information using Shannon's entropy measure.
 
 #### TO EXECUTE
 To execute search\_objects.py, from the command line:
