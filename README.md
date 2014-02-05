@@ -11,7 +11,7 @@ SEARCH_OBJECTS.PY* performs a conesearch around an object (where the object is g
 
 SEARCH\_OBJECTS\_PARALLEL.PY* is a slightly modified version of search\_objects.py that allows for distribution of work across multiple processors. 
 
-PARALLELIZE.SH is the bash script used for executing search\_objects\_parallel.py.
+PARALLELIZE.SH is the bash script used for executing search\_objects\_parallel.py. (This needs to be tested some more!)
 
 COMPUTE\_EI.PY computes expected information using Shannon's entropy measure.
 
